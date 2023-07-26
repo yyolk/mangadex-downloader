@@ -127,8 +127,8 @@ class EpubPlugin:
             'package',
             attrs={
                 'xmlns': 'http://www.idpf.org/2007/opf',
-                'unique-identifier': self.id,
-                'version': '2.0'
+                'unique-identifier': "BookID",
+                'version': '3.0'
             }
         )
         root.append(package)
@@ -148,7 +148,7 @@ class EpubPlugin:
         dc_id = root.new_tag(
             'dc:identifier',
             attrs={
-                'id': self.id,
+                'id': "BookID",
                 'opf:scheme': 'UUID'
             }
         )
