@@ -261,7 +261,7 @@ class EpubPlugin:
         root = self._get_root()
         self._nav_root = root
         # Make doctype
-        doctype = Doctype.for_name_and_ids("html")
+        doctype = Doctype.for_name_and_ids("html", None, None)
         root.append(doctype)
 
         html_root = root.new_tag(
