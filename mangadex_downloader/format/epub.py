@@ -170,6 +170,21 @@ class EpubPlugin:
                 authors += author
         dc_authors = root.new_tag('dc:creator')
         dc_authors.string = authors
+        
+        # Right to Left
+        primary_writing_mode = root.new_tag(
+            'primary-writing-mode',
+            attrs={
+                'content': 'horizontal-rl'
+            }
+        )
+        book_type = root.new_tag(
+            'book-type',
+            attrs={
+                'content': 'comic'
+            }
+        )
+
         metadata.append(dc_authors)
 
         metadata.append(dc_title)
