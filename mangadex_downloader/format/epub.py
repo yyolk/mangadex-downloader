@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import datetime
 import os
 import zipfile
 import shutil
@@ -149,10 +150,9 @@ class EpubPlugin:
             'dc:identifier',
             attrs={
                 'id': "BookID",
-                'opf:scheme': 'UUID'
             }
         )
-        dc_id.string = self.id
+        dc_id.string = f'urn:uuid:{self.id}'
 
         # Tags
         for tag in self.manga.tags:
@@ -171,17 +171,27 @@ class EpubPlugin:
         dc_authors = root.new_tag('dc:creator')
         dc_authors.string = authors
         
+        # Modified
+        dcterms_modified = root.new_tag(
+            'meta',
+            attrs={
+                'property': "dcterms:modified"
+            }
+        )
+        dcterms_modified.string = f'{datetime.datetime.utcnow():%Y-%m-%dT%H:%M:%SZ}'
         # Right to Left
         primary_writing_mode = root.new_tag(
-            'primary-writing-mode',
+            'meta',
             attrs={
-                'content': 'horizontal-rl'
+                'name': 'primary-writing-mode',
+                'content': 'horizontal-rl',
             }
         )
         book_type = root.new_tag(
-            'book-type',
+            'meta',
             attrs={
-                'content': 'comic'
+                'name': 'book-type',
+                'content': 'comic',
             }
         )
 
@@ -190,6 +200,8 @@ class EpubPlugin:
         metadata.append(dc_title)
         metadata.append(dc_language)
         metadata.append(dc_id)
+        metadata.append(primary_writing_mode)
+        metadata.append(book_type)
         package.append(metadata)
 
         # <manifest>
@@ -297,11 +309,7 @@ class EpubPlugin:
             root = self._get_root()
 
             # Make doctype
-            doctype = Doctype.for_name_and_ids(
-                "html",
-                '-//W3C//DTD XHTML 1.1//EN',
-                'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd'
-            )
+            doctype = Doctype.for_name_and_ids("html")
             root.append(doctype)
 
             html_root = root.new_tag(
