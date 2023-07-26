@@ -207,6 +207,7 @@ class EpubPlugin:
         metadata.append(dc_id)
         metadata.append(primary_writing_mode)
         metadata.append(book_type)
+        metadata.append(dcterms_modified)
         package.append(metadata)
 
         # <manifest>
@@ -219,7 +220,17 @@ class EpubPlugin:
                 'media-type': 'application/x-dtbncx+xml'
             }
         )
+        nav_tag = root.new_tag(
+            'item',
+            attrs={
+                'id': 'nav',
+                'href': 'nav.xhtml',
+                'properties': 'nav',
+                'media-type': 'application/xhtml+xml',
+            }
+        )
         manifest.append(ncx_tag)
+        manifest.append(nav_tag)
         package.append(manifest)
         self._manifest = manifest
 
