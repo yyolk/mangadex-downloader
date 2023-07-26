@@ -81,6 +81,11 @@ class EpubPlugin:
         self._navigation = None
         self._make_toc()
 
+        # nav.xhtml
+        self._nav_root = None
+        self._make_nav(manga.title)
+
+
     def _make_toc(self):
         root = self._get_root()
         self._toc_root = root
@@ -102,7 +107,7 @@ class EpubPlugin:
             'meta',
             attrs={
                 'name': 'dtb:uid',
-                'content': self.id
+                'content': f'urn:uuid:{self.id}'
             }
         )
         head.append(meta_tag)
@@ -251,6 +256,96 @@ class EpubPlugin:
             toc.append(toc_content)
         
         return toc
+
+    def _make_nav(self, title):
+        root = self._get_root()
+        self._nav_root = root
+        # Make doctype
+        doctype = Doctype.for_name_and_ids("html")
+        root.append(doctype)
+
+        html_root = root.new_tag(
+            'html',
+            attrs={
+                'xmlns': 'http://www.w3.org/1999/xhtml',
+                'xmlns:epub': 'http://www.idpf.org/2007/ops',
+            }
+        )
+
+        # Head document
+        head_root = root.new_tag('head')
+        title_tag = root.new_tag('title')
+        title_tag.string = title
+        head_root.append(title_tag)
+
+        meta_charset = root.new_tag(
+            'meta',
+            attrs={
+                'charset': "utf-8"
+            }
+        )
+        head_root.append(meta_charset)
+
+        # Body document
+        body_root = root.new_tag('body')
+        nav_tag = root.new_tag(
+            'nav',
+            attrs={
+                'xmlns:epub': 'http://www.idpf.org/2007/ops',
+                'epub:type': 'toc',
+                'id': 'toc',
+            }
+        )
+        body_root.append(nav_tag)
+
+        # ol>li>a[href=0000.xhtml]{Title}
+        nav_ol = root.new_tag('ol')
+        nav_ol_li = root.new_tag('li')
+        nav_ol_li_a = root.new_tag(
+            'a',
+            attrs={
+                # TODO: this is a guess
+                'href': 'xhtml/0_1.xhtml'
+            }
+        )
+        nav_ol_li_a.string = title
+
+        nav_ol_li.append(nav_ol_li_a)
+        nav_ol.append(nav_ol_li)
+        body_root.append(nav_ol)
+
+        nav_page_list = root.new_tag(
+            'nav',
+            attrs={
+                'epub:type': 'page-list'
+            }
+        )
+        nav_pagelist_ol = root.new_tag('ol')
+        nav_pagelist_ol_li = root.new_tag('li')
+        nav_pagelist_ol_li_a = root.new_tag(
+            'a',
+            attrs={
+                # TODO: this is a guess
+                'href': 'xhtml/0_1.xhtml'
+            }
+        )
+        nav_pagelist_ol_li_a.string = title
+        body_root.append(nav_page_list)
+
+        nav_pagelist_ol_li.append(nav_pagelist_ol_li_a)
+        nav_pagelist_ol.append(nav_pagelist_ol_li)
+        body_root.append(nav_pagelist_ol)
+
+        # HTML root
+        html_root.append(head_root)
+        html_root.append(body_root)
+        root.append(html_root)
+
+        # self._create_manifest_item(self._pos, pos, im)
+        # self._create_spine_item(self._pos, pos)
+        # self._create_toc_item(nav, self._pos, pos)
+
+        # xhtml.append(root)
 
     def _create_toc_item(self, nav, path, pos):
         xhtml_path = f'xhtml/{path}_{pos}.xhtml'
@@ -410,6 +505,9 @@ class EpubPlugin:
 
             # Write .opf document
             zip_obj.writestr('OEBPS/content.opf', self._opf_root.prettify())
+
+            # Write nav
+            zip_obj.writestr('OEBPS/nav.xhtml', self._nav_root))
 
             # Write XHTML and images
             for page, (xhtml, images) in self._pages.items():
