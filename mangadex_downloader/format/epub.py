@@ -307,7 +307,6 @@ class EpubPlugin:
                 'id': 'toc',
             }
         )
-        body_root.append(nav_tag)
 
         # ol>li>a[href=0000.xhtml]{Title}
         nav_ol = root.new_tag('ol')
@@ -323,9 +322,11 @@ class EpubPlugin:
 
         nav_ol_li.append(nav_ol_li_a)
         nav_ol.append(nav_ol_li)
-        body_root.append(nav_ol)
+        nav_tag.append(nav_ol)
+        body_root.append(nav_tag)
 
-        nav_page_list = root.new_tag(
+
+        nav_pagelist = root.new_tag(
             'nav',
             attrs={
                 'epub:type': 'page-list'
@@ -341,11 +342,11 @@ class EpubPlugin:
             }
         )
         nav_pagelist_ol_li_a.string = title
-        body_root.append(nav_page_list)
 
         nav_pagelist_ol_li.append(nav_pagelist_ol_li_a)
         nav_pagelist_ol.append(nav_pagelist_ol_li)
-        body_root.append(nav_pagelist_ol)
+        nav_pagelist.append(nav_pagelist_ol)
+        body_root.append(nav_pagelist)
 
         # HTML root
         html_root.append(head_root)
