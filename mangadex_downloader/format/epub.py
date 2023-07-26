@@ -507,7 +507,7 @@ class EpubPlugin:
             zip_obj.writestr('OEBPS/content.opf', self._opf_root.prettify())
 
             # Write nav
-            zip_obj.writestr('OEBPS/nav.xhtml', self._nav_root))
+            zip_obj.writestr('OEBPS/nav.xhtml', self._nav_root.prettify())
 
             # Write XHTML and images
             for page, (xhtml, images) in self._pages.items():
