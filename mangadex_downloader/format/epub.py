@@ -83,7 +83,7 @@ class EpubPlugin:
 
         # nav.xhtml
         self._nav_root = None
-        self._make_nav(manga.title)
+        self._make_nav()
 
 
     def _make_toc(self):
@@ -268,7 +268,7 @@ class EpubPlugin:
         
         return toc
 
-    def _make_nav(self, title):
+    def _make_nav(self):
         root = self._get_root()
         self._nav_root = root
         # Make doctype
@@ -286,7 +286,7 @@ class EpubPlugin:
         # Head document
         head_root = root.new_tag('head')
         title_tag = root.new_tag('title')
-        title_tag.string = title
+        title_tag.string = self.title
         head_root.append(title_tag)
 
         meta_charset = root.new_tag(
@@ -318,7 +318,7 @@ class EpubPlugin:
                 'href': 'xhtml/0_1.xhtml'
             }
         )
-        nav_ol_li_a.string = title
+        nav_ol_li_a.string = self.title
 
         nav_ol_li.append(nav_ol_li_a)
         nav_ol.append(nav_ol_li)
@@ -341,7 +341,7 @@ class EpubPlugin:
                 'href': 'xhtml/0_1.xhtml'
             }
         )
-        nav_pagelist_ol_li_a.string = title
+        nav_pagelist_ol_li_a.string = self.title
 
         nav_pagelist_ol_li.append(nav_pagelist_ol_li_a)
         nav_pagelist_ol.append(nav_pagelist_ol_li)
