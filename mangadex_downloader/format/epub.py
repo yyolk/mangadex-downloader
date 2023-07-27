@@ -134,7 +134,8 @@ class EpubPlugin:
             attrs={
                 'xmlns': 'http://www.idpf.org/2007/opf',
                 'unique-identifier': "BookID",
-                'version': '3.0'
+                'version': '3.0',
+                'dir': 'rtl',
             }
         )
         root.append(package)
