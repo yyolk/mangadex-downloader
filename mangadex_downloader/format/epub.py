@@ -185,6 +185,14 @@ class EpubPlugin:
             }
         )
         dcterms_modified.string = f'{datetime.datetime.utcnow():%Y-%m-%dT%H:%M:%SZ}'
+        # Hardcode Kindle Scribe Resolution
+        original_resolution = root.new_tag(
+            'meta',
+            attrs={
+                'name': 'original-resolution',
+                'content': '1440x1920',
+            }
+        )
         # Right to Left
         primary_writing_mode = root.new_tag(
             'meta',
@@ -206,6 +214,7 @@ class EpubPlugin:
         metadata.append(dc_title)
         metadata.append(dc_language)
         metadata.append(dc_id)
+        metadata.append(original_resolution)
         metadata.append(primary_writing_mode)
         metadata.append(book_type)
         metadata.append(dcterms_modified)
