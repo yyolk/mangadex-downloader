@@ -245,7 +245,14 @@ class EpubPlugin:
         self._manifest = manifest
 
         # <spine>
-        spine = root.new_tag('spine', attrs={'toc': 'ncx'})
+        spine = root.new_tag(
+            'spine',
+            attrs={
+                'toc': 'ncx',
+                # TODO: paremeterize Right to left; drop if not requested to fallback to default
+                'page-progression-direction': 'rtl',
+            }
+        )
         package.append(spine)
         self._spine = spine
 
