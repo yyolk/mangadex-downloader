@@ -58,8 +58,8 @@ log = logging.getLogger(__name__)
 class EpubReadingDirection(Enum):
     """Might be temporary. Class to hold writing direction and various expressions.
     
-    Only supports right-to-left or left-to-right.
-    Could be upgraded to include vertical-rl and vertical-lr
+    Only supports right-to-left or left-to-right, and their horizontal variations.
+    Could be upgraded to include vertical-rl and vertical-lr.
     """
     RTL = "rtl"
     LTR = "ltr"
@@ -234,6 +234,7 @@ class EpubPlugin:
                 'content': 'comic',
             }
         )
+        # TODO: add cover, if provided(?) or default to first page
 
         metadata.append(dc_authors)
 
@@ -311,6 +312,8 @@ class EpubPlugin:
         return toc
 
     def _make_nav(self):
+        """Make a nav.xhtml"""
+        # TODO: an attempt to make a nav, for epub3
         root = self._get_root()
         self._nav_root = root
         # Make doctype
@@ -350,13 +353,15 @@ class EpubPlugin:
             }
         )
 
+        # TODO: various items for epub3; they're hardcoded and should use context
+
         # ol>li>a[href=0000.xhtml]{Title}
         nav_ol = root.new_tag('ol')
         nav_ol_li = root.new_tag('li')
         nav_ol_li_a = root.new_tag(
             'a',
             attrs={
-                # TODO: this is a guess
+                # TODO: this is a guess, this should be the first page
                 'href': 'xhtml/0_1.xhtml'
             }
         )
@@ -379,7 +384,7 @@ class EpubPlugin:
         nav_pagelist_ol_li_a = root.new_tag(
             'a',
             attrs={
-                # TODO: this is a guess
+                # TODO: this is a guess, this should be the first page
                 'href': 'xhtml/0_1.xhtml'
             }
         )
@@ -563,6 +568,8 @@ class EpubPlugin:
             # Write nav
             zip_obj.writestr('OEBPS/nav.xhtml', self._nav_root.prettify())
 
+            # TODO: add Cover, if provided(?)
+
             # Write XHTML and images
             for page, (xhtml, images) in self._pages.items():
 
@@ -643,6 +650,7 @@ class EpubSingle(ConvertedSingleFormat, EPUBFile):
             self.manga,
             self.manga.chapters.language.value,
             # TODO: this needs to be generic for all formats and implemented across, similar to language property on manga.chapters
+            #       however I was only able to discern that EPUB supports this directionality
             #self.manga.chapters.direction.value,
             EpubReadingDirection.RTL,
             self.epub_chapters,
