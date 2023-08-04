@@ -26,6 +26,7 @@ import zipfile
 import shutil
 import tqdm
 import logging
+from enum import Enum
 from pathvalidate import sanitize_filename
 from .base import (
     ConvertedChaptersFormat,
@@ -54,14 +55,39 @@ else:
 
 log = logging.getLogger(__name__)
 
+class EpubReadingDirection(Enum):
+    """Might be temporary. Class to hold writing direction and various expressions.
+    
+    Only supports right-to-left or left-to-right.
+    Could be upgraded to include vertical-rl and vertical-lr
+    """
+    RTL = "rtl"
+    LTR = "ltr"
+
+    @property
+    def primary_writing_mode(self):
+        """For ``<meta name="primary-writing-mode">``
+        
+        See https://kdp.amazon.com/en_US/help/topic/GFFHCXVPHRZW8SJ5#metadata
+        """
+        if self is self.RTL:
+            return "horizontal-rl"
+        return "horizontal-lr"
+
+    def __str__(self):
+        """Convenience as we're most likely going to interporlate in place"""
+        return self.value
+
+
 # Inspired from https://github.com/manga-download/hakuneko/blob/master/src/web/mjs/engine/EbookGenerator.mjs
 # TODO: Add doc for this class
 class EpubPlugin:
-    def __init__(self, manga, lang):
+    def __init__(self, manga, lang, direction="ltr"):
         self.manga = manga
         self.id = manga.id
         self.title = manga.title
         self.lang = lang
+        self.direction = EpubReadingDirection(direction)
 
         self._pos = 0
         self._pages = {}
@@ -135,7 +161,7 @@ class EpubPlugin:
                 'xmlns': 'http://www.idpf.org/2007/opf',
                 'unique-identifier': "BookID",
                 'version': '3.0',
-                'dir': 'rtl',
+                'dir': self.direction.value,
             }
         )
         root.append(package)
@@ -198,7 +224,7 @@ class EpubPlugin:
             'meta',
             attrs={
                 'name': 'primary-writing-mode',
-                'content': 'horizontal-rl',
+                'content': self.direction.primary_writing_mode,
             }
         )
         book_type = root.new_tag(
@@ -249,8 +275,7 @@ class EpubPlugin:
             'spine',
             attrs={
                 'toc': 'ncx',
-                # TODO: paremeterize Right to left; drop if not requested to fallback to default
-                'page-progression-direction': 'rtl',
+                'page-progression-direction': self.direction.value,
             }
         )
         package.append(spine)
@@ -559,8 +584,8 @@ class EPUBFile:
         if not epub_ready:
             raise EpubMissingDependencies()
 
-    def convert(self, manga, lang, chapters, path):
-        epub = EpubPlugin(manga, lang)
+    def convert(self, manga, lang, direction, chapters, path):
+        epub = EpubPlugin(manga, lang, direction)
 
         for chapter, images in chapters:
             epub.create_page(chapter.get_name(), images)
@@ -576,6 +601,9 @@ class Epub(ConvertedChaptersFormat, EPUBFile):
         job = lambda: self.convert(
             self.manga,
             chapter.language.value,
+            # TODO: this needs to be generic for all formats and implemented across, similar to language property on chapter
+            #chapter.direction.value,
+            EpubReadingDirection.LTR,
             [(chapter, images)],
             file_path
         )
@@ -593,6 +621,9 @@ class EpubVolume(ConvertedVolumesFormat, EPUBFile):
         job = lambda: self.convert(
             self.manga,
             self.manga.chapters.language.value,
+            # TODO: this needs to be generic for all formats and implemented across, similar to language property on manga
+            #self.manga.chapters.direction.value,
+            EpubReadingDirection.LTR,
             self.epub_chapters,
             file_path
         )
@@ -611,6 +642,9 @@ class EpubSingle(ConvertedSingleFormat, EPUBFile):
         job = lambda: self.convert(
             self.manga,
             self.manga.chapters.language.value,
+            # TODO: this needs to be generic for all formats and implemented across, similar to language property on manga.chapters
+            #self.manga.chapters.direction.value,
+            EpubReadingDirection.LTR,
             self.epub_chapters,
             file_path
         )
