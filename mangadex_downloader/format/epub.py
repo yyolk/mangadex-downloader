@@ -603,7 +603,7 @@ class Epub(ConvertedChaptersFormat, EPUBFile):
             chapter.language.value,
             # TODO: this needs to be generic for all formats and implemented across, similar to language property on chapter
             #chapter.direction.value,
-            EpubReadingDirection.LTR,
+            EpubReadingDirection.RTL,
             [(chapter, images)],
             file_path
         )
@@ -623,7 +623,7 @@ class EpubVolume(ConvertedVolumesFormat, EPUBFile):
             self.manga.chapters.language.value,
             # TODO: this needs to be generic for all formats and implemented across, similar to language property on manga
             #self.manga.chapters.direction.value,
-            EpubReadingDirection.LTR,
+            EpubReadingDirection.RTL,
             self.epub_chapters,
             file_path
         )
@@ -644,7 +644,7 @@ class EpubSingle(ConvertedSingleFormat, EPUBFile):
             self.manga.chapters.language.value,
             # TODO: this needs to be generic for all formats and implemented across, similar to language property on manga.chapters
             #self.manga.chapters.direction.value,
-            EpubReadingDirection.LTR,
+            EpubReadingDirection.RTL,
             self.epub_chapters,
             file_path
         )
