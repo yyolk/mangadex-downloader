@@ -317,7 +317,7 @@ class EpubPlugin:
         root = self._get_root()
         self._nav_root = root
         # Make doctype
-        doctype = Doctype.for_name_and_ids("html", None, None)
+        doctype = Doctype("html")
         root.append(doctype)
 
         html_root = root.new_tag(
@@ -356,8 +356,8 @@ class EpubPlugin:
         # TODO: various items for epub3; they're hardcoded and should use context
 
         # ol>li>a[href=0000.xhtml]{Title}
-        nav_ol = root.new_tag('ol')
-        nav_ol_li = root.new_tag('li')
+        # nav_ol = root.new_tag('ol')
+        # nav_ol_li = root.new_tag('li')
         nav_ol_li_a = root.new_tag(
             'a',
             attrs={
@@ -367,9 +367,11 @@ class EpubPlugin:
         )
         nav_ol_li_a.string = self.title
 
-        nav_ol_li.append(nav_ol_li_a)
-        nav_ol.append(nav_ol_li)
-        nav_tag.append(nav_ol)
+        # nav_ol_li.append(nav_ol_li_a)
+        # nav_ol.append(nav_ol_li)
+        # nav_tag.append(nav_ol)
+        nav_tag.append(nav_ol_li_a)
+        nav_ol_li_a.wrap(root.new_tag('li')).wrap(root.new_tag('ol'))
         body_root.append(nav_tag)
 
 
@@ -379,8 +381,8 @@ class EpubPlugin:
                 'epub:type': 'page-list'
             }
         )
-        nav_pagelist_ol = root.new_tag('ol')
-        nav_pagelist_ol_li = root.new_tag('li')
+        # nav_pagelist_ol = root.new_tag('ol')
+        # nav_pagelist_ol_li = root.new_tag('li')
         nav_pagelist_ol_li_a = root.new_tag(
             'a',
             attrs={
@@ -390,21 +392,22 @@ class EpubPlugin:
         )
         nav_pagelist_ol_li_a.string = self.title
 
-        nav_pagelist_ol_li.append(nav_pagelist_ol_li_a)
-        nav_pagelist_ol.append(nav_pagelist_ol_li)
-        nav_pagelist.append(nav_pagelist_ol)
+        # nav_pagelist_ol_li.append(nav_pagelist_ol_li_a)
+        # nav_pagelist_ol.append(nav_pagelist_ol_li)
+        # nav_pagelist.append(nav_pagelist_ol)
+        nav_pagelist.append(nav_pagelist_ol_li_a)
+        nav_pagelist_ol_li_a.wrap(root.new_tag('li')).wrap(root.new_tag('ol'))
         body_root.append(nav_pagelist)
+
+        # TODO: reminder of how items are added elsewehere
+        # self._create_manifest_item(self._pos, pos, im)
+        # self._create_spine_item(self._pos, pos)
+        # self._create_toc_item(nav, self._pos, pos)
 
         # HTML root
         html_root.append(head_root)
         html_root.append(body_root)
         root.append(html_root)
-
-        # self._create_manifest_item(self._pos, pos, im)
-        # self._create_spine_item(self._pos, pos)
-        # self._create_toc_item(nav, self._pos, pos)
-
-        # xhtml.append(root)
 
     def _create_toc_item(self, nav, path, pos):
         xhtml_path = f'xhtml/{path}_{pos}.xhtml'
